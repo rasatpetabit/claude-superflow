@@ -1,0 +1,45 @@
+{
+  "name": "claude-superflow",
+  "version": "0.1.0",
+  "description": "Brainstorm → plan → execute development workflow for Claude Code: configurable autonomy, worktree management, legacy plan import, doctor lint, Codex routing, and self-paced cross-session loops",
+  "author": {
+    "name": "Richard A Steenbergen",
+    "email": "ras@petabitscale.com"
+  },
+  "homepage": "https://github.com/rasatpetabit/claude-superflow",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rasatpetabit/claude-superflow.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "claude-code-plugin",
+    "workflow",
+    "brainstorm",
+    "planning",
+    "superpowers",
+    "codex",
+    "worktrees",
+    "automation",
+    "agent"
+  ],
+  "dependencies": {
+    "required": [
+      {
+        "name": "superpowers",
+        "reason": "/superflow delegates to superpowers:brainstorming, writing-plans, subagent-driven-development, executing-plans, using-git-worktrees, systematic-debugging, finishing-a-development-branch"
+      }
+    ],
+    "optional": [
+      {
+        "name": "codex",
+        "reason": "Required only if codex_routing is set to auto or manual; provides codex:codex-rescue subagent"
+      },
+      {
+        "name": "context7-mcp",
+        "reason": "Used by the CD-4 ladder for library documentation lookups during blocker resolution"
+      }
+    ]
+  }
+}
