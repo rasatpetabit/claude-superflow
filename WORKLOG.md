@@ -37,3 +37,29 @@ Append-only handoff notes for collaboration with other LLMs (Codex, future Claud
 - Linear history, no merge commits, no rebase needed.
 - `.worktrees/` ignored on main; .worktrees/superflow-small-fixes is the active worktree.
 - Suggested next: invoke `superpowers:finishing-a-development-branch` to merge to main or open a PR.
+
+---
+
+## 2026-05-02 — `/superflow` v0.3.0 explicit phase verbs
+
+**Scope:** Added `new`, `brainstorm`, `plan`, `execute` as explicit first-token verbs in `/superflow`. Spec: `docs/superpowers/specs/2026-05-02-superflow-subcommands-design.md`. Plan: `docs/superpowers/plans/2026-05-02-superflow-subcommands.md`.
+
+**Key decisions (the why):**
+
+- **Discoverability over phase-control framing.** User picked "Discoverability — make verbs visible at a glance" as the motivation. The phase-control verbs (`brainstorm`, `plan`) fall out for free once the verbs are addressable, but they aren't the headline.
+- **Additive, no deprecation.** Bare-topic catch-all and `--resume=<path>` keep working forever. Existing `/loop /superflow <topic> ...` invocations and any cron / docs that use the bare-topic form continue unchanged. Cost: routing logic remains "verb match OR catch-all."
+- **`halt_mode` as a tiny internal state machine instead of a per-step flag.** Set once in Step 0 from the verb match, read by B1/B2/B3/C. Cleaner than threading four boolean flags through every dispatch site, and the in-session "Continue to plan now / Start execution now" overrides become a simple `halt_mode` flip.
+- **`plan --from-spec=<path>` skips Step B0 — spec's location is authoritative.** B0a covers the trunk-branch foot-gun (relocate spec to a feature worktree if it lives on main/master/trunk). Caught during spec self-review; without it, we'd silently inherit the trunk branch and only discover SDD's refusal at execute time.
+- **`/superflow plan` (no args) does a Step P picker, not an error.** User flagged "list recent specs without a plan, let user pick" as the desired behavior. One filesystem scan beats forcing the user to remember/type the path; consistent with how `/superflow` (empty) lists in-progress plans.
+- **Verb tokens reserved.** Topics literally named `new`, `brainstorm`, `plan`, `execute` need a leading word. Documented in the README. Concrete cost is small; alternatives (escape character, `--topic=` flag) would have introduced more grammar than they saved.
+
+**Operational notes:**
+
+- All edits are markdown-only. No code, no automated test suite for the prompt. Verification is grep-based per-task plus a final smoke-read of the modified `commands/superflow.md`.
+- The README's existing `## Subcommand reference` got a new `### Verbs` subsection at its top; the original table is now `### Invocation forms (back-compat detail)`. README structure preserved otherwise.
+- v0.3.0 is a minor version bump because the externally-visible grammar grew (new verbs) without breaking anything that already worked.
+
+**Open questions / followups:**
+
+- The `/loop /superflow brainstorm <topic>` foot-gun is mitigated by a one-line warning at Step 0; a stricter "auto-disable loop under halt_mode" could be considered later if telemetry shows users still hit it.
+- `/superflow execute` with zero in-progress plans currently routes to Step A which offers "Start fresh" → kickoff. That's slightly indirect under explicit-verb framing; a future polish could reword the option to "No in-progress plans. Run /superflow new <topic>?" so the verb model stays coherent.
