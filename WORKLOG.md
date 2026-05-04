@@ -6,6 +6,47 @@ Pre-v2.0.0 entries were pruned in the v2.0.0 release; institutional knowledge fr
 
 ---
 
+## 2026-05-04 — v2.2.3 — marketplace readiness and Claude validator fixes
+
+**Scope:** Pre-public-release audit for Claude plugin directory submission.
+
+**Findings fixed:**
+
+- `claude plugin validate .` failed before this pass because
+  `.claude-plugin/plugin.json` used npm-style `repository: {type,url}` while
+  current Claude Code expects a string, and `commands/masterplan.md`
+  frontmatter used an unquoted description containing `Verbs:`. Both blocked
+  marketplace-quality packaging.
+- README documented `/plugin marketplace add rasatpetabit/superpowers-masterplan`,
+  but the repository did not contain `.claude-plugin/marketplace.json`, which
+  current Claude Code marketplace docs require for GitHub marketplace sources.
+- Plugin metadata treated the official `superpowers` dependency as prose-only.
+  v2.2.3 declares it as a plugin dependency and allowlists
+  `claude-plugins-official` for cross-marketplace resolution.
+
+**Changes:**
+
+- `.claude-plugin/plugin.json`: version `2.2.3`, concise marketplace-facing
+  description, string `repository`, explicit
+  `superpowers@claude-plugins-official` dependency.
+- `.claude-plugin/marketplace.json`: new direct-install catalog for
+  `rasatpetabit-superpowers-masterplan`.
+- `commands/masterplan.md`: quoted YAML frontmatter description.
+- `README.md`, `CHANGELOG.md`, `CLAUDE.md`, `docs/internals.md`: release and
+  packaging docs synced to v2.2.3.
+- `docs/release-submission.md`: durable submission checklist plus form-copy draft
+  for the Claude plugin directory and Anthropic Verified request.
+
+**Verification:** `claude plugin validate .`, `claude plugin validate
+.claude-plugin/plugin.json`, JSON validation, `bash -n
+hooks/masterplan-telemetry.sh`, `git diff --check`, local link check, and
+`claude plugin tag --dry-run --force .` all pass. Isolated clean install smoke
+with a temporary `HOME` passed after adding the official marketplace over HTTPS:
+Claude installed `superpowers-masterplan@rasatpetabit-superpowers-masterplan`
+and auto-installed one dependency (`superpowers`).
+
+---
+
 ## 2026-05-04 — v2.2.2 — remove standing "no backward-compat / hard-cut renames" rule
 
 **Scope:** Documentation-only removal of the project-encoded prohibition on backward-compatibility aliases and dual-load shims when renaming. Going forward, decisions about migration aliases for breaking renames are made case-by-case.
