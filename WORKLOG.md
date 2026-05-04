@@ -68,3 +68,48 @@ Pre-v2.0.0 entries were pruned in the v2.0.0 release; institutional knowledge fr
 - Tag `v2.0.0` created locally (Phase 4.4); push deferred to user-approval gate (Phase 4.5).
 - Working tree clean.
 - README Project status section updated to v2.0.0 framing.
+
+---
+
+## 2026-05-04 — v2.1.0 — README polish + gated→loose offer + Roadmap
+
+**Scope:** Additive release on the v2.x track; no breaking changes. Three threads:
+
+1. **README polish:** reordered `## Why this exists` to precede `## What you get`; appended a 6-bullet benefits paragraph to "Why this exists" (long-term complex planning, aggressive context discipline, dramatic token reduction, parallelism for faster operation, cross-session resume, cross-model review); added `### Defaults at a glance` sub-section under `## Configuration` (~50-line compact YAML block); added `## Roadmap` top-level section before `## Author` (6 deferred items + 4 documented non-features, each with measurable revisit trigger).
+2. **Gated→loose switch offer:** new AskUserQuestion at Step C step 1 (after telemetry inline snapshot, before per-task autonomy loop). When `autonomy == gated` AND `config.gated_switch_offer_at_tasks > 0` AND plan task count ≥ threshold (default 15) AND not already dismissed, offer 4-option switch. Two new status frontmatter fields handle suppression: `gated_switch_offer_dismissed` (permanent per-plan) + `gated_switch_offer_shown` (per-session; re-fires on cross-session resume by design).
+3. **Release bookkeeping:** plugin.json 2.0.0 → 2.1.0; CHANGELOG `[2.1.0]` block; this WORKLOG entry; tag + push.
+
+**Key decisions (the why):**
+
+- **Top-level `gated_switch_offer_at_tasks` config key, not nested under `autonomy:`.** Initial plan suggested `autonomy.gated_switch_offer_at_tasks` but YAML doesn't allow `autonomy: gated` (scalar) AND `autonomy: { gated_switch_offer_at_tasks: 15 }` (block) to coexist. Renaming the existing scalar would be a breaking change. Top-level key avoids the conflict. Cost: less namespaced, but unambiguous and additive.
+- **Per-session `gated_switch_offer_shown` flag re-fires on cross-session resume by design.** Reasoning: when the user comes back to a paused plan after a break, they may have changed their mind about the gated friction. Asking once per session is the right cadence. Permanent dismissal is available via `gated_switch_offer_dismissed: true` for users who DON'T want re-prompting.
+- **The orchestrator does NOT modify `.masterplan.yaml`** even when the user picks "Switch + don't ask again on any plan." It writes a `## Notes` entry recommending the change; user takes the action manually. Per CD-2 — config files are user-owned.
+- **Default threshold = 15 tasks.** Educated guess. The audit-pass v1.0.0 plan was 12 tasks; the v1.1.0 wave-dispatch plan was 14 tasks; the v2.0.0 release plan was effectively 18+ tasks. 15 captures the "this is going to take a while" point. Easy to tune via config.
+- **Reordered Why before What in README per user instruction.** Better reading flow: explain the value before the verb surface. The "thin orchestrator" framing in the tagline paragraph still introduces *what* it does at a high level, then "Why this exists" goes deep on value, then "What you get" enumerates the verbs.
+- **Roadmap section frames deferred items as "decided NOT to ship yet, and why"** rather than "promised future work." Prevents the section from being read as a feature-request invitation. Each item has a measurable revisit trigger (per the existing `docs/design/intra-plan-parallelism.md` convention).
+- **Defaults at a glance duplicates the Configuration section's schema.** Maintenance cost: when a default changes, both must update. Mitigation: keep the at-a-glance block deliberately compact (just `key: value` pairs, no inline explanation) so it's easy to eyeball-diff against the full schema.
+
+**Operational notes:**
+
+- 3 commits this release: Phase 1 README polish [9226037], Phase 2 gated→loose offer [9d22c5d], Phase 3 release (this commit). Smaller release than v2.0.0.
+- Halt-mode discriminator suite: 26 unique lines (was 25 pre-Phase 2). The +1 is from the new Step C step 1 paragraph; not an orphan reference, just a contextually-correct mention.
+- README structure verified post-changes: `## Why this exists` (line 9), `## What you get` (line 24), `## Configuration` with `### Defaults at a glance` + `### Full schema (with explanations)` sub-sections, `## Roadmap` (line 620) before `## Author`.
+- Status file format docs updated in 3 places: README "Status file" section, commands/masterplan.md "Status file format" section, docs/internals.md §4 "Status file format". All three include both new optional fields with v2.1.0+ annotation.
+
+**Verification gaps (carried as v2.x followups):**
+
+- **Gated→loose offer behavior not yet first-user-tested.** Markdown logic; runtime behavior depends on a real `/masterplan execute` against a 15+ task plan under autonomy=gated. First-user verification is the smoke test. Documented in WORKLOG (this entry) + plan file's "Risks" section.
+- Same gaps as v2.0.0 carried forward: macOS hook smoke verification, canned `$ARGUMENTS` self-test specs.
+
+**Known followups (post-v2.1.0):**
+
+- **Telemetry signal for "user dismissed the offer"** — would help inform whether threshold default 15 is well-calibrated. Add `gated_switch_offer_outcome: switched|stayed|never_offered` field to the Stop hook's record. Defer until a real signal exists from a few users.
+- **Doctor check for unusually-long-but-still-gated plans** — flag plans where `task_count > 20` AND `autonomy: gated` AND `gated_switch_offer_dismissed: true` for >7 days as candidates for re-revisit. Niche.
+- All v2.0.0 followups still apply (Slice β/γ trigger doctor check, Codex concurrency verification, $ARGUMENTS self-tests, macOS smoke).
+
+**Branch state at end of v2.1.0:**
+
+- 3 commits ahead of v2.0.0 on `main`.
+- Tag `v2.1.0` created locally (Phase 3); push deferred to user-approval gate.
+- Working tree clean.
+- plugin.json: 2.1.0; description mentions the v2.1.0 surface.
