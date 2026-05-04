@@ -145,3 +145,34 @@ Pre-v2.0.0 entries were pruned in the v2.0.0 release; institutional knowledge fr
 - Tag `v2.1.0` created locally (Phase 3); push deferred to user-approval gate.
 - Working tree clean.
 - plugin.json: 2.1.0; description mentions the v2.1.0 surface.
+
+---
+
+## 2026-05-04 — post-v2.2.0 documentation sync
+
+**Scope:** README, `docs/internals.md`, `CHANGELOG.md`.
+
+**Why:** A post-release review found stale public and internal docs after v2.2.0:
+
+- README still described bare `/masterplan` as direct list+pick instead of the Step M two-tier picker.
+- README still marked Project status as v2.1.0 and omitted the v2.2.0 release bullet.
+- README's full schema block still had `codex.review: off` and omitted v2.x keys already present in the defaults-at-a-glance block.
+- `docs/internals.md` Step 11 still mirrored empty `$ARGUMENTS` as Step A instead of Step M.
+
+**Decisions:** Kept this as a docs-only sync. Did not alter `commands/masterplan.md`; the command source already has Step M and v2.2.0 routing. README's `--no-parallelism` note now points users to `parallelism.enabled: false` for durable config instead of claiming a nonexistent `parallelism:` status-frontmatter field.
+
+**Verification:** Re-run the standard doc drift greps before commit: README no-args wording, v2.2.0/current status, config defaults (`codex.review: on`, `parallelism:`, `gated_switch_offer_at_tasks`), internals Step M mirror, `bash -n hooks/masterplan-telemetry.sh`, and JSON validation for `.claude-plugin/plugin.json` + `.claude/settings.local.json`.
+
+---
+
+## 2026-05-04 — README simplification + project audit
+
+**Scope:** README cleanup plus a prompt/docs consistency audit before commit.
+
+**Changes:**
+
+- Rewrote README as a compact user guide (install, quick start, command reference, flags, config, advanced features, project status) and removed duplicated internals/history content now covered by `docs/internals.md` and `CHANGELOG.md`.
+- Fixed command prompt flag docs to include `--no-codex-review`, to stop claiming `--parallelism` persists to status frontmatter, and to remove stale future-only wording about Slice α parallelism. Durable parallelism defaults live in `.masterplan.yaml`.
+- Updated this handoff plus CHANGELOG Unreleased so the docs cleanup and audit findings are durable.
+
+**Verification:** Run README structure/stale-reference checks, local-link existence checks, doctor-check table count, `git diff --check`, hook `bash -n`, and JSON validation before commit.
