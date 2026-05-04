@@ -6,6 +6,52 @@ Pre-v2.0.0 entries were pruned in the v2.0.0 release; institutional knowledge fr
 
 ---
 
+## 2026-05-04 — v2.2.0 — doc revisionism + verb rename + no-args picker
+
+**Scope:** Three threads:
+
+1. **Doc revisionism.** Pre-v1.0.0 (v0.x) release-history references removed everywhere. CHANGELOG older blocks deleted entirely + remaining v0.x mentions in v1.0.0/v2.0.0 entries scrubbed; v2.0.0 entry's rename framing dropped (Renamed section + rename-step migration notes deleted; mechanical `/superflow → /masterplan` and `claude-superflow → superpowers-masterplan` substitutions throughout v1.0.0 + v2.0.0 entries). README "Path to v2.0.0" → "Releases since v1.0.0" with v0.x bullets removed; Project status reworded to drop rename framing; `/superflow` alias non-feature item removed from Roadmap. `docs/internals.md` v0.x parentheticals dropped from "Why" section headings; "Why hard-cut renames" → "Why hard-cut name changes"; remaining "rename"/"renamed" mentions reworded throughout. `docs/design/intra-plan-parallelism.md` + the v1.1.0 spec: "v0.1 → v0.2 → v0.3 → v0.4 → v1.0.0" deferral-chain framing rewritten as "deferred prior to v1.0.0". WORKLOG v2.0.0 entry's rename narrative trimmed (was 6 threads → now 5); functional deliverables (parallelism Slice α, Codex defaults, internal docs) preserved.
+2. **Verb rename `new` → `full`.** Hard-cut, no alias. All sync'd locations updated: frontmatter description, Step 0 verb routing table rows ("full" no-topic + "full <topic>"), reserved-verbs warning, argument-parse precedence list, Step P "no candidates" example, README verb table + quick-start examples + reserved-verb prose + Aliases-and-shortcuts table, `docs/internals.md` Step 0 mirror.
+3. **Two-tier no-args picker (Step M).** New section before Step A. `/masterplan` (no args) surfaces `AskUserQuestion("What kind of work?")` with 4 options (Phase work / Operations / Resume in-flight / Cancel). Tier 2a picks a phase verb + topic prompt; Tier 2b picks an operation verb. "Resume in-flight" delegates to Step A's existing list+pick. "Cancel" exits cleanly. Step 0 routing table's `_(empty)_` row updated to point at Step M; `execute (no path)` row reworded to no longer cross-reference "bare empty" (they diverge now).
+
+**Key decisions (the why):**
+
+- **Doc revisionism over git-history rewrite.** Git log + tag history persist showing the v2.0.0 rename release. The user-facing docs are scrubbed; the git-history mismatch is accepted by user instruction. Mitigation: anyone curious can `git log v2.0.0..HEAD` for the actual rename history.
+- **v2.2.0 minor bump for breaking verb rename.** `new` → `full` is technically a breaking change (would normally warrant a major bump), but v2.0.0 shipped today (2026-05-04) and no users have memorized the verb yet — functionally no-impact. Doc revisionism + picker are additive. Net minor bump per semver judgment call. CHANGELOG migration notes flag the breaking change explicitly.
+- **Two-tier picker not one-tier (8 verbs).** CD-9's 2-4 option cap on `AskUserQuestion`. Two-tier respects the cap while still surfacing all 8 verbs cleanly. Tier 1 separates "Phase work" (the common case for new tasks) from "Operations" (the housekeeping verbs). "Resume in-flight" gets its own top-level option because it's frequent and would otherwise be hidden under Operations.
+- **Picker delegates to Step A for "Resume in-flight" rather than re-implementing the worktree scan.** One canonical site for the in-progress-plans logic; Step M routes there with no further prompt. Keeps Step M small and Step A unchanged.
+- **Local dir + memory dir rename deferred to AFTER push (Phase 5).** Mid-session rename would invalidate the Bash cwd and Claude's memory-dir hashing. Push first → rename last → resume in a new session in the renamed dir.
+- **`retro` skill check confirmed Step R implementation.** The `superflow-retro` skill was deleted in v1.0.0 (consolidated into Step R inside `commands/masterplan.md`). The picker can offer `retro` confidently because Step R is functional.
+
+**Operational notes:**
+
+- 9 commits this release (Phase 1 = 5 commits scrub passes, Phase 2 = 3 commits verb rename, Phase 3 = 1 commit picker; this Phase 4 commit + Phase 5 rename happens after push).
+- Halt-mode discriminator suite: 32 unique lines (was 26 pre-Phase 3). The +6 are from Step M's halt_mode mentions in Tier 2a routing (brainstorm/plan/full set the appropriate halt_mode) + Notes section. Not orphans; intentional new mentions.
+- Verification spec from the plan: pre-v1.0.0 reference audit (`grep -rn -i 'v0\.|claude-superflow|/superflow' commands/ README.md CHANGELOG.md WORKLOG.md docs/ .claude-plugin/`) returns 0 lines. Verb rename completeness: `/masterplan new\b` returns 0; `/masterplan full\b` returns 6+ across the three sync'd files.
+- Doctor table size: 18 rows (unchanged from v2.0.0+v2.1.0).
+
+**Verification gaps (carried as v2.x followups):**
+
+- **Two-tier picker behavior not yet first-user-tested.** Markdown logic; runtime behavior depends on a real bare-`/masterplan` invocation. First-user verification is the smoke test.
+- **Verb rename `new` → `full` not yet smoke-tested with $ARGUMENTS.** Step 0's argument-parse precedence (line 84) has been updated to match `full` instead of `new` in the verb set. A canned `$ARGUMENTS` self-test would catch any drift; deferred.
+- All v2.1.0 followups still apply (canned $ARGUMENTS self-tests, macOS hook smoke, etc.).
+
+**Known followups (post-v2.2.0):**
+
+- **Telemetry signal for picker option chosen** — informs whether the tier-1 ordering is well-calibrated. If users overwhelmingly pick "Resume in-flight" the order should change; if they pick "Phase work → full" we should consider promoting `full` as the bare-default. Defer until usage data exists.
+- **Doctor check for "old verb tokens in user-authored plans"** — flag plans where activity log mentions `/masterplan new` (suggests user is on outdated muscle memory). Niche; defer.
+- All v2.0.0/v2.1.0 followups still apply.
+
+**Branch state at end of v2.2.0 (pre-push):**
+
+- 10 commits ahead of v2.1.0 on `main` (Phase 1: 5 commits, Phase 2: 3 commits, Phase 3: 1 commit, this Phase 4 release commit: 1).
+- Tag `v2.2.0` to be created locally; push deferred to user-approval gate.
+- Working tree clean.
+- plugin.json: 2.2.0; description mentions the v2.2.0 surface (picker + verb rename).
+- Phase 5 (local dir rename + memory dir migration) runs AFTER push.
+
+---
+
 ## 2026-05-04 — v2.0.0 — Slice α intra-plan parallelism + Codex defaults on + internal docs
 
 **Scope:** Single coherent v2.0.0 release bundling five threads:
