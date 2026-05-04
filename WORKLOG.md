@@ -6,12 +6,50 @@ Pre-v2.0.0 entries were pruned in the v2.0.0 release; institutional knowledge fr
 
 ---
 
+## 2026-05-04 — v2.2.2 — remove standing "no backward-compat / hard-cut renames" rule
+
+**Scope:** Documentation-only removal of the project-encoded prohibition on backward-compatibility aliases and dual-load shims when renaming. Going forward, decisions about migration aliases for breaking renames are made case-by-case.
+
+**Changes:**
+
+- **`CLAUDE.md`:** deleted the "Top anti-patterns" #2 bullet ("Don't add backward-compatibility shims when renaming things…"); renumbered prior #3–#6 to #2–#5.
+- **`docs/internals.md`:** deleted the `### Why hard-cut name changes` subsection and the corresponding bulleted anti-pattern (`Adding backward-compat shims for breaking name changes.`) under "Architectural anti-patterns".
+- **`WORKLOG.md` v2.2.0 entry:** scrubbed two policy-framing references — Phase 1 doc-revisionism narrative no longer mentions the (now-deleted) `Why hard-cut renames` → `Why hard-cut name changes` heading rewrite; Phase 2 verb-rename narrative no longer prefaces with "Hard-cut, no alias." Functional record of what was changed in v2.2.0 stays.
+- **`~/.claude/projects/-home-ras-dev-superpowers-masterplan/memory/feedback_no_backward_compat_aliases.md`:** deleted entirely.
+- **`MEMORY.md` index:** deleted the line linking to the removed feedback file.
+- **CHANGELOG `[Unreleased]`:** new `### Removed` entry; promoted to `[2.2.2] — 2026-05-04`.
+- **`plugin.json` 2.2.1 → 2.2.2** + description tweak.
+- **README "Current release"** bumped to v2.2.2.
+
+**Key decisions (the why):**
+
+- **No replacement rule.** The user explicitly removed the rule, not "softened" or "qualified" it. Adding a successor like "always confirm before adding aliases" would defeat the point. The absence of a standing rule is the new state; case-by-case judgement applies.
+- **Past breaking renames stay shipped.** `/masterplan new` stays renamed to `/masterplan full`. `claude-superflow` stays rebranded to `superpowers-masterplan`. The v2.2.0 CHANGELOG `(breaking — no alias)` framing for the released `new → full` rename is kept verbatim — release notes are an append-only historical record.
+- **Scrub WORKLOG narratives, not CHANGELOG entries.** The user picked this scope explicitly via AskUserQuestion. WORKLOG framings encoded the rule prescriptively in past-tense narrative ("Hard-cut, no alias"); CHANGELOG entries describe released behavior factually ("(breaking — no alias)"). The latter stays as documentation of what shipped.
+- **Patch-level version bump (2.2.1 → 2.2.2).** Doc-only deletion with no orchestrator behavior change. No CLI surface change. No config schema change.
+
+**Verification:**
+
+- Negative grep: `hard-cut`, `dual-load`, `no backward-compat` return zero hits in `CLAUDE.md`, `docs/internals.md`, `commands/`, `skills/`, `hooks/`, `.claude-plugin/`, `README.md`. WORKLOG/CHANGELOG hits are limited to the new WORKLOG entry (this one) and the v2.2.0 CHANGELOG release-notes lines.
+- CLAUDE.md anti-pattern numbering: 5 sequential bullets (1–5) confirmed.
+- MEMORY.md index: 5 entries (was 6); `feedback_no_backward_compat_aliases.md` no longer present.
+- Standard pre-commit gates: `bash -n hooks/masterplan-telemetry.sh` clean, `plugin.json` JSON-valid.
+
+**Branch state at end of v2.2.2:**
+
+- 1 commit ahead of v2.2.1 on `main`.
+- Tag `v2.2.2` to be created locally; pushed alongside the commit.
+- Working tree clean.
+- plugin.json: 2.2.2.
+
+---
+
 ## 2026-05-04 — v2.2.0 — doc revisionism + verb rename + no-args picker
 
 **Scope:** Three threads:
 
-1. **Doc revisionism.** Pre-v1.0.0 (v0.x) release-history references removed everywhere. CHANGELOG older blocks deleted entirely + remaining v0.x mentions in v1.0.0/v2.0.0 entries scrubbed; v2.0.0 entry's rename framing dropped (Renamed section + rename-step migration notes deleted; mechanical `/superflow → /masterplan` and `claude-superflow → superpowers-masterplan` substitutions throughout v1.0.0 + v2.0.0 entries). README "Path to v2.0.0" → "Releases since v1.0.0" with v0.x bullets removed; Project status reworded to drop rename framing; `/superflow` alias non-feature item removed from Roadmap. `docs/internals.md` v0.x parentheticals dropped from "Why" section headings; "Why hard-cut renames" → "Why hard-cut name changes"; remaining "rename"/"renamed" mentions reworded throughout. `docs/design/intra-plan-parallelism.md` + the v1.1.0 spec: "v0.1 → v0.2 → v0.3 → v0.4 → v1.0.0" deferral-chain framing rewritten as "deferred prior to v1.0.0". WORKLOG v2.0.0 entry's rename narrative trimmed (was 6 threads → now 5); functional deliverables (parallelism Slice α, Codex defaults, internal docs) preserved.
-2. **Verb rename `new` → `full`.** Hard-cut, no alias. All sync'd locations updated: frontmatter description, Step 0 verb routing table rows ("full" no-topic + "full <topic>"), reserved-verbs warning, argument-parse precedence list, Step P "no candidates" example, README verb table + quick-start examples + reserved-verb prose + Aliases-and-shortcuts table, `docs/internals.md` Step 0 mirror.
+1. **Doc revisionism.** Pre-v1.0.0 (v0.x) release-history references removed everywhere. CHANGELOG older blocks deleted entirely + remaining v0.x mentions in v1.0.0/v2.0.0 entries scrubbed; v2.0.0 entry's rename framing dropped (Renamed section + rename-step migration notes deleted; mechanical `/superflow → /masterplan` and `claude-superflow → superpowers-masterplan` substitutions throughout v1.0.0 + v2.0.0 entries). README "Path to v2.0.0" → "Releases since v1.0.0" with v0.x bullets removed; Project status reworded to drop rename framing; `/superflow` alias non-feature item removed from Roadmap. `docs/internals.md` v0.x parentheticals dropped from "Why" section headings; remaining "rename"/"renamed" mentions reworded throughout. `docs/design/intra-plan-parallelism.md` + the v1.1.0 spec: "v0.1 → v0.2 → v0.3 → v0.4 → v1.0.0" deferral-chain framing rewritten as "deferred prior to v1.0.0". WORKLOG v2.0.0 entry's rename narrative trimmed (was 6 threads → now 5); functional deliverables (parallelism Slice α, Codex defaults, internal docs) preserved.
+2. **Verb rename `new` → `full`.** All sync'd locations updated: frontmatter description, Step 0 verb routing table rows ("full" no-topic + "full <topic>"), reserved-verbs warning, argument-parse precedence list, Step P "no candidates" example, README verb table + quick-start examples + reserved-verb prose + Aliases-and-shortcuts table, `docs/internals.md` Step 0 mirror.
 3. **Two-tier no-args picker (Step M).** New section before Step A. `/masterplan` (no args) surfaces `AskUserQuestion("What kind of work?")` with 4 options (Phase work / Operations / Resume in-flight / Cancel). Tier 2a picks a phase verb + topic prompt; Tier 2b picks an operation verb. "Resume in-flight" delegates to Step A's existing list+pick. "Cancel" exits cleanly. Step 0 routing table's `_(empty)_` row updated to point at Step M; `execute (no path)` row reworded to no longer cross-reference "bare empty" (they diverge now).
 
 **Key decisions (the why):**
@@ -197,7 +235,7 @@ Pre-v2.0.0 entries were pruned in the v2.0.0 release; institutional knowledge fr
 - **`No active plans.` empty-state line.** Always emit a one-liner so the user knows the scan ran. Slightly chattier than skipping but reassures the user that "no plans" is a real fact, not a missed scan. Picked over "skip preamble entirely" by user choice.
 - **`step_m_plans_cache` reused by Step A, not parallel re-scan.** The cache writes once in M0; Step A reads-only. Keeps a single canonical scan per turn. Cache is transient — discarded at end-of-turn — so it doesn't pollute later cross-session resumes.
 - **Updated "Stay on script" instead of inventing a new guardrail.** The line-292 paragraph already permitted "a one-line orientation"; M0's structured preamble is a permitted extension, not a new license. Reframing the existing guardrail (and explicitly forbidding per-check enumeration in the preamble) prevents future model drift more reliably than a separate guardrail elsewhere.
-- **No new doctor check #19.** M0's tripwire reuses existing checks #2/#3/#4/#5/#6/#9/#10 by name + semantics. Doctor table size stays at 18; Step D's parallelization brief still says "all 18 checks." Per CLAUDE.md anti-pattern #5, the three sync'd verb-routing locations remain aligned (M0 is a sub-step of M, not a new verb — frontmatter `description:` and reserved-verbs warning unchanged).
+- **No new doctor check #19.** M0's tripwire reuses existing checks #2/#3/#4/#5/#6/#9/#10 by name + semantics. Doctor table size stays at 18; Step D's parallelization brief still says "all 18 checks." Per CLAUDE.md anti-pattern #4, the three sync'd verb-routing locations remain aligned (M0 is a sub-step of M, not a new verb — frontmatter `description:` and reserved-verbs warning unchanged).
 
 **Verification:**
 
