@@ -5,10 +5,10 @@
   },
   "plugins": [
     {
-      "name": "superpowers-masterplan",
+      "name": "masterplan",
       "source": {
         "source": "local",
-        "path": "./plugins/superpowers-masterplan"
+        "path": "./plugins/masterplan"
       },
       "policy": {
         "installation": "INSTALLED_BY_DEFAULT",
